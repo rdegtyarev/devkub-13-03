@@ -14,13 +14,14 @@
 
 ### Решение
 
+##### Подготовка
 Создадим неймспейс:
 >kubectl create namespace 
 
 Задеплоим приложение:
 >kubectl apply -f ./app/
 
-1. port-forward
+##### port-forward
 
 * сделайте запросы к бекенду  
 
@@ -82,7 +83,7 @@ pg_isready -d news -h localhost -p 5432 -U postgres
 localhost:5432 - accepting connections
 ```
 
-2. exec  
+##### exec  
 
 Получаем имена подов:
 ```
