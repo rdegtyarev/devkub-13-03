@@ -14,6 +14,117 @@
 
 ### Решение
 
+Создадим неймспейс:
+>kubectl create namespace 
+
+Задеплоим приложение:
+>kubectl apply -f ./app/
+
+1. port-forward
+
+* сделайте запросы к бекенду  
+
+Делаем форвард:
+```bash
+kubectl port-forward -n devkub-13-03 service/prod-back-srv 9001:9000
+Forwarding from 127.0.0.1:9001 -> 9000
+Forwarding from [::1]:9001 -> 9000
+```
+
+Проверяем:
+```bash
+curl http://localhost:9001/api/news/
+[{"id":1,"title":"title 0","short_description":"small text 0small text 0small text 0small text 0small 
+```
+
+
+* сделайте запросы к фронту  
+
+Делаем форвард:
+```
+kubectl port-forward -n devkub-13-03 service/prod-front-srv 8081:8080
+Forwarding from 127.0.0.1:8081 -> 80
+Forwarding from [::1]:8081 -> 80
+Handling connection for 8081
+```  
+
+Проверяем:
+```bash
+curl http://localhost:8081
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <script type="module" crossorigin src="/assets/index.7c2bfd2c.js"></script>
+    <link rel="stylesheet" href="/assets/index.038ca730.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    
+  </body>
+</html>
+```
+* подключитесь к базе данных  
+
+Делаем форвард:
+```
+kubectl port-forward -n devkub-13-03 service/prod-db-srv 5432:543232
+Forwarding from 127.0.0.1:5432 -> 5432
+Forwarding from [::1]:5432 -> 5432
+```
+
+Проверяем:
+```
+pg_isready -d news -h localhost -p 5432 -U postgres  
+localhost:5432 - accepting connections
+```
+
+2. exec  
+
+Получаем имена подов:
+```
+kubectl get pods -n devkub-13-03
+NAME                     READY   STATUS    RESTARTS   AGE
+back-59c69d7bcd-qjgzk    1/1     Running   0          51m
+db-0                     1/1     Running   0          51m
+front-76965c974d-7mzr2   1/1     Running   0          51m
+```
+
+* сделайте запросы к бекенду;
+```bash
+kubectl exec -it -n devkub-13-03 back-59c69d7bcd-qjgzk -- curl http://localhost:9000/api/news/
+[{"id":1,"title":"title 0","short_description":"small text 0small text 0small text 0small text 0small text 0small text 0small text 0small text 0small text 0small text 0","preview":"/static/image.png"},{"id":2,"title":"title 1","short_description":"small text 1small text 1small text 1small text 1small text 1small text 1small text 1small text 1small text 1small text 1","preview":"/static/image.png"},{"id":3,"t
+```
+
+* сделайте запросы к фронту;
+```bash
+kubectl exec -it -n devkub-13-03 front-76965c974d-7mzr2 -- curl http://localhost:80st:80
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <script type="module" crossorigin src="/assets/index.7c2bfd2c.js"></script>
+    <link rel="stylesheet" href="/assets/index.038ca730.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    
+  </body>
+</html>
+
+```
+
+* подключитесь к базе данных.
+```bash
+kubectl exec -it -n devkub-13-03 db-0 -- pg_isready -d news -h localhost -p 5432 -U postgres 
+localhost:5432 - accepting connections
+```
 
 
 ---
