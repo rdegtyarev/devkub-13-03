@@ -142,6 +142,35 @@ localhost:5432 - accepting connections
 
 ### Решение
 
+Проверяем текущее состояние:
+```bash
+kubectl get pods -o wide -n devkub-13-03
+NAME                     READY   STATUS    RESTARTS   AGE   IP              NODE    NOMINATED NODE   READINESS GATES
+back-59c69d7bcd-qjgzk    1/1     Running   0          60m   10.233.90.203   node1   <none>           <none>
+db-0                     1/1     Running   0          60m   10.233.94.167   node0   <none>           <none>
+front-76965c974d-7mzr2   1/1     Running   0          60m   10.233.90.204   node1   <none>           <none>
+```
 
+Увеличиваем количество копий фронта и бекенда:
+```
+kubectl scale --replicas=3 deploy/back -n devkub-13-03
+deployment.apps/back scaled
+
+kubectl scale --replicas=3 deploy/front -n devkub-13-03
+deployment.apps/front scaled
+```
+
+Проверяем результат, смотрим на каких нодах запустились копии:
+```
+kubectl get pods -o wide -n devkub-13-03
+NAME                     READY   STATUS    RESTARTS   AGE   IP              NODE    NOMINATED NODE   READINESS GATES
+back-59c69d7bcd-72bkh    1/1     Running   0          31s   10.233.94.168   node0   <none>           <none>
+back-59c69d7bcd-kqvcg    1/1     Running   0          31s   10.233.90.205   node1   <none>           <none>
+back-59c69d7bcd-qjgzk    1/1     Running   0          64m   10.233.90.203   node1   <none>           <none>
+db-0                     1/1     Running   0          64m   10.233.94.167   node0   <none>           <none>
+front-76965c974d-7mzr2   1/1     Running   0          64m   10.233.90.204   node1   <none>           <none>
+front-76965c974d-p2l8h   1/1     Running   0          13s   10.233.90.206   node1   <none>           <none>
+front-76965c974d-q779s   1/1     Running   0          13s   10.233.94.169   node0   <none>           <none>
+```
 
 ---
